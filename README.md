@@ -42,6 +42,7 @@ The only thing you need to do is passing children. These children **must** have 
 - `className` *(optional)*: `String` class applied to container element
 - `childComponent` *(optional)*: `String | ReactClass` the element or component wrapping each child (default: `div`)
 - `childStyle` *(optional)*: `Object` style of the element wrapping each child
+- `childClassName` *(optional)*: `String` classname for the element wrapping each child
 - `springConfig` *(optional)* `Object` spring configuration for react-motion ([docs](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig))
 
 #### example
@@ -77,8 +78,9 @@ Elements and classes specified:
 ```javascript
 <FlipMotion
   component="ul"
-  childComponent="li"
   className="container"
+  childComponent="li"
+  childClassName="element"
 >
   {children}
 </FlipMotion>
