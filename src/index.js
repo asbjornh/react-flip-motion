@@ -5,20 +5,21 @@ import { TransitionMotion, spring } from "react-motion";
 
 class FlipMotion extends Component {
   static propTypes = {
+    children: PropTypes.oneOfType([
+      PropTypes.node,
+      PropTypes.arrayOf(PropTypes.node)
+    ]),
+    childClassName: PropTypes.string,
+    childComponent: PropTypes.string,
+    childStyle: PropTypes.object,
+    className: PropTypes.string,
+    component: PropTypes.string,
     springConfig: PropTypes.shape({
       stiffness: PropTypes.number,
       damping: PropTypes.number,
       precision: PropTypes.number
     }),
-    children: PropTypes.oneOfType([
-      PropTypes.node,
-      PropTypes.arrayOf(PropTypes.node)
-    ]),
-    style: PropTypes.object,
-    childStyle: PropTypes.object,
-    component: PropTypes.string,
-    childComponent: PropTypes.string,
-    className: PropTypes.string
+    style: PropTypes.object
   };
 
   static defaultProps = {
@@ -224,6 +225,7 @@ class FlipMotion extends Component {
 
               return (
                 <ChildComponent
+                  className={this.props.childClassName}
                   key={item.key}
                   style={
                     item.style && {
