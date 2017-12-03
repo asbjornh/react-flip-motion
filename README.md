@@ -1,8 +1,12 @@
 # react-flip-motion
 
+[![npm version](https://img.shields.io/npm/v/react-flip-motion.svg?style=flat)](https://www.npmjs.com/package/react-flip-motion)
+
 > A simple component to naively perform transitions between children changes
 
-> This is a fork of [react-motion-flip](https://github.com/bloodyowl/react-motion-flip), which appears to be abandoned
+> This is a fork of
+> [react-motion-flip](https://github.com/bloodyowl/react-motion-flip), which
+> appears to be abandoned
 
 ![flipmotion-loop](https://user-images.githubusercontent.com/13281350/33279420-c25b0856-d39e-11e7-9406-0930aa204655.gif)
 
@@ -22,9 +26,9 @@ yarn add react-flip-motion
 
 ```javascript
 // in ES5/commonJS
-var FlipMotion = require("react-flip-motion").default
+var FlipMotion = require("react-flip-motion").default;
 // in ES6
-import FlipMotion from "react-flip-motion"
+import FlipMotion from "react-flip-motion";
 ```
 
 ## API
@@ -33,17 +37,22 @@ import FlipMotion from "react-flip-motion"
 
 A component that performs transitions between children states.
 
-The only thing you need to do is passing children. These children **must** have a `key` prop.
+The only thing you need to do is passing children. These children **must** have
+a `key` prop.
 
 #### props
 
-- `component` *(optional)*: `String | ReactClass` the container element or component (default: `div`)
-- `style` *(optional)*: `Object` style of the container element
-- `className` *(optional)*: `String` class applied to container element
-- `childComponent` *(optional)*: `String | ReactClass` the element or component wrapping each child (default: `div`)
-- `childStyle` *(optional)*: `Object` style of the element wrapping each child
-- `childClassName` *(optional)*: `String` classname for the element wrapping each child
-- `springConfig` *(optional)* `Object` spring configuration for react-motion ([docs](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig))
+* `component` _(optional)_: `String | ReactClass` the container element or
+  component (default: `div`)
+* `style` _(optional)_: `Object` style of the container element
+* `className` _(optional)_: `String` class applied to container element
+* `childComponent` _(optional)_: `String | ReactClass` the element or component
+  wrapping each child (default: `div`)
+* `childStyle` _(optional)_: `Object` style of the element wrapping each child
+* `childClassName` _(optional)_: `String` classname for the element wrapping
+  each child
+* `springConfig` _(optional)_ `Object` spring configuration for react-motion
+  ([docs](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig))
 
 #### example
 
@@ -65,12 +74,9 @@ Simple usage:
 With custom styles on wrappers:
 
 ```javascript
-<FlipMotion
-  style={{ display: "flex" }}
-  childStyle={{ flexBasis: 400 }}
->
+<FlipMotion style={{ display: "flex" }} childStyle={{ flexBasis: 400 }}>
   {children}
-</FlipMotion>
+</FlipMotion>;
 ```
 
 Elements and classes specified:
@@ -83,24 +89,31 @@ Elements and classes specified:
   childClassName="element"
 >
   {children}
-</FlipMotion>
+</FlipMotion>;
 ```
 
 ## What is FLIP?
 
-**FLIP** is an animation technique from [Paul Lewis](https://twitter.com/aerotwist). It stands for **First**, **Last**, **Invert**, **Play**.
+**FLIP** is an animation technique from
+[Paul Lewis](https://twitter.com/aerotwist). It stands for **First**, **Last**,
+**Invert**, **Play**.
 
-- **First**: At the initial state, measure where elements are
-- **Last**: Move elements to where they belong at the end of the animation
-- **Invert**: Use CSS transforms to move the elements to their initial positions
-- **Play**: Play the animation
+* **First**: At the initial state, measure where elements are
+* **Last**: Move elements to where they belong at the end of the animation
+* **Invert**: Use CSS transforms to move the elements to their initial positions
+* **Play**: Play the animation
 
-This technique presents the advantage to remove the need for complex calculations to guess where the element you animate is going to end up. You just measure a diff.
+This technique presents the advantage to remove the need for complex
+calculations to guess where the element you animate is going to end up. You just
+measure a diff.
 
-> You should read the great article explaining the technique on [aerotwist](https://aerotwist.com/blog/flip-your-animations/)
+> You should read the great article explaining the technique on
+> [aerotwist](https://aerotwist.com/blog/flip-your-animations/)
 
 ## Why using react-motion?
 
-react-motion provides a great way to configure animations: not with time, but with *physics*. This makes animations really smooth and natural.
+react-motion provides a great way to configure animations: not with time, but
+with _physics_. This makes animations really smooth and natural.
 
-> Have a look at [react-motion](https://github.com/chenglou/react-motion/#what-does-this-library-try-to-solve)
+> Have a look at
+> [react-motion](https://github.com/chenglou/react-motion/#what-does-this-library-try-to-solve)
