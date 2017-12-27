@@ -40,21 +40,19 @@ A component that performs transitions between children states.
 The only thing you need to do is passing children. These children **must** have
 a `key` prop.
 
-#### props
+#### Props
 
-* `component` _(optional)_: `String | ReactClass` the container element or
-  component (default: `div`)
-* `style` _(optional)_: `Object` style of the container element
-* `className` _(optional)_: `String` class applied to container element
-* `childComponent` _(optional)_: `String | ReactClass` the element or component
-  wrapping each child (default: `div`)
-* `childStyle` _(optional)_: `Object` style of the element wrapping each child
-* `childClassName` _(optional)_: `String` classname for the element wrapping
-  each child
-* `springConfig` _(optional)_ `Object` spring configuration for react-motion
-  ([docs](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig))
+|Prop|Type|Default|Description|
+|---|---|---|---|
+|`childComponent`|String / ReactClass|`div`|The element or component wrapping each child
+|`childStyle`|Object||Style of the element wrapping each child
+|`childClassName`|String||Classname for the element wrapping each child
+|`className`|String||Classname applied to container element
+|`component`|String / ReactClass|`div`|The container element or component
+|`springConfig`|Object||Spring configuration for react-motion ([docs](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig))
+|`style`|Object||Style of the container element
 
-#### example
+#### Example
 
 Simple usage:
 
