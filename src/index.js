@@ -115,7 +115,7 @@ class FlipMotion extends Component {
       const elementsThatWillUnmount = {};
       const nextKeys = Children.map(nextProps.children, child => child.key);
 
-      Children.forEach(this.props.children, prevChild => {
+      Children.forEach(this.props.children, (prevChild, index) => {
         // If key is missing in nextKeys and , element is about to unmount. Store dimensions to be able to position absolutely
         if (
           nextKeys.indexOf(prevChild.key) === -1 &&
@@ -126,6 +126,7 @@ class FlipMotion extends Component {
           const parentRect = getOffsetParentRect(child);
 
           elementsThatWillUnmount[prevChild.key] = {
+            index,
             styles: {
               height: rect.height,
               width: rect.width,
@@ -137,7 +138,14 @@ class FlipMotion extends Component {
         }
       });
 
-      // As TransitionMotion does not provide a callback on motion end, we need to manually remove the elements that have completed their out transition and are ready to be unmounted
+      // Insert unmounting elements into nextProps.children to keep them mounted so they can be animated out
+      const previousChildren = Object.assign([], nextProps.children);
+      Object.keys(elementsThatWillUnmount).forEach(key => {
+        const index = elementsThatWillUnmount[key].index;
+        previousChildren.push(this.props.children[index]);
+      });
+
+      // As TransitionMotion does not provide a callback for motion end, we need to manually remove the elements that have completed their out transition and are ready to be unmounted
       clearInterval(this.pruneLoop);
       this.pruneLoop = setInterval(
         this.pruneUnmountingElements.bind(this),
@@ -148,7 +156,7 @@ class FlipMotion extends Component {
         elementsThatWillUnmount,
         unmountingElements: {},
         shouldMesure: true,
-        previousChildren: this.props.children,
+        previousChildren,
         previousPosition: Object.keys(this.children).reduce((acc, key) => {
           if (this.children[key]) {
             acc[key] = this.children[key].getBoundingClientRect();
