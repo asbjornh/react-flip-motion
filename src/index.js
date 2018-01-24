@@ -3,6 +3,19 @@ import PropTypes from "prop-types";
 import raf from "raf";
 import { TransitionMotion, spring } from "react-motion";
 
+function getOffsetParentRect(node) {
+  if (
+    node.offsetParent &&
+    getComputedStyle(node.offsetParent).position !== "static"
+  ) {
+    return node.offsetParent.getBoundingClientRect();
+  } else if (node.offsetParent) {
+    return getOffsetParentRect(node.offsetParent);
+  } else {
+    return { top: 0, left: 0 };
+  }
+}
+
 class FlipMotion extends Component {
   static propTypes = {
     children: PropTypes.oneOfType([
@@ -108,14 +121,16 @@ class FlipMotion extends Component {
           nextKeys.indexOf(prevChild.key) === -1 &&
           nextChildren.length < prevChildren.length
         ) {
-          const rect = this.children[prevChild.key].getBoundingClientRect();
+          const child = this.children[prevChild.key];
+          const rect = child.getBoundingClientRect();
+          const parentRect = getOffsetParentRect(child);
 
           elementsThatWillUnmount[prevChild.key] = {
             styles: {
               height: rect.height,
               width: rect.width,
-              left: rect.left,
-              top: rect.top,
+              left: rect.left - parentRect.left,
+              top: rect.top - parentRect.top,
               position: "absolute"
             }
           };
