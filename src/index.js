@@ -42,7 +42,7 @@ class FlipMotion extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      shouldMesure: false,
+      shouldMeasure: false,
       previousPosition: null,
       transform: null
     };
@@ -155,7 +155,7 @@ class FlipMotion extends Component {
       this.setState({
         elementsThatWillUnmount,
         unmountingElements: {},
-        shouldMesure: true,
+        shouldMeasure: true,
         previousChildren,
         previousPosition: Object.keys(this.children).reduce((acc, key) => {
           if (this.children[key]) {
@@ -169,14 +169,14 @@ class FlipMotion extends Component {
   }
 
   componentDidUpdate() {
-    if (this.state.shouldMesure) {
+    if (this.state.shouldMeasure) {
       raf(() => {
         this.setState(
           state => {
             return {
               elementsThatWillUnmount: null,
               unmountingElements: state.elementsThatWillUnmount,
-              shouldMesure: false,
+              shouldMeasure: false,
               transform: Object.keys(this.children).reduce((acc, key) => {
                 if (!this.children[key]) {
                   acc[key] = {
@@ -239,7 +239,7 @@ class FlipMotion extends Component {
           <Component style={style} className={this.props.className}>
             {styles.map(item => {
               const willUnmount =
-                this.state.shouldMesure &&
+                this.state.shouldMeasure &&
                 (elementsThatWillUnmount[item.key] ||
                   unmountingElements[item.key]);
               const isUnMounting = unmountingElements[item.key];
