@@ -1,6 +1,6 @@
 {
   "name": "react-flip-motion",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description":
     "A simple component to perform FLIP animations using react-motion",
   "main": "lib/index.js",
@@ -56,9 +56,8 @@
     "jest-cli": "^21.2.1",
     "object-assign": "^4.1.0",
     "prop-types": "^15.6.0",
-    "react": "^15.1.0",
-    "react-addons-test-utils": "^15.1.0",
-    "react-dom": "^15.1.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.5"
   },
@@ -67,7 +66,7 @@
     "react-motion": "^0.5.2"
   },
   "peerDependencies": {
-    "react": "^15.1.0"
+    "react": "^16.2.0"
   },
   "jest": {
     "rootDir": "",
