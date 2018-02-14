@@ -1,10 +1,13 @@
 {
   "name": "react-flip-motion",
-  "version": "1.1.5",
-  "description":
-    "A simple component to perform FLIP animations using react-motion",
+  "version": "1.1.6",
+  "description": "A simple component to perform FLIP animations using react-motion",
   "main": "lib/index.js",
-  "files": ["lib", "LICENSE", "README.md"],
+  "files": [
+    "lib",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "start": "rm -fr lib/ && babel src --out-dir lib --ignore='__tests__'",
     "test": "jest --verbose",
@@ -70,8 +73,14 @@
   },
   "jest": {
     "rootDir": "",
-    "modulePathIgnorePatterns": ["<rootDir>/node_modules/"],
-    "transformIgnorePatterns": ["<rootDir>/node_modules/"],
-    "unmockedModulePathPatterns": ["<rootDir>/node_modules/"]
+    "modulePathIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ],
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ],
+    "unmockedModulePathPatterns": [
+      "<rootDir>/node_modules/"
+    ]
   }
 }

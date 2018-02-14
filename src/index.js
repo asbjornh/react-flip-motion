@@ -55,7 +55,7 @@ class FlipMotion extends Component {
     // If some elements are unmounting, use previousChildren to be able to add out transition to leaving elements
     const children =
       (unmountingElements && Object.keys(unmountingElements).length) ||
-      (elementsThatWillUnmount && Object.keys(elementsThatWillUnmount).length)
+        (elementsThatWillUnmount && Object.keys(elementsThatWillUnmount).length)
         ? this.state.previousChildren
         : this.props.children;
 
@@ -65,20 +65,20 @@ class FlipMotion extends Component {
         style:
           unmountingElements && unmountingElements[child.key]
             ? {
-                x: spring(0, this.props.springConfig),
-                y: spring(0, this.props.springConfig),
-                opacity: spring(0, this.props.springConfig),
-                scale: spring(0.6, this.props.springConfig)
-              }
+              x: spring(0, this.props.springConfig),
+              y: spring(0, this.props.springConfig),
+              opacity: spring(0, this.props.springConfig),
+              scale: spring(0.6, this.props.springConfig)
+            }
             : {
-                x: spring(0, this.props.springConfig),
-                y: spring(0, this.props.springConfig),
-                ...(this.state.transform && this.state.transform[child.key]
-                  ? this.state.transform[child.key]
-                  : null),
-                opacity: spring(1, this.props.springConfig),
-                scale: spring(1, this.props.springConfig)
-              },
+              x: spring(0, this.props.springConfig),
+              y: spring(0, this.props.springConfig),
+              ...(this.state.transform && this.state.transform[child.key]
+                ? this.state.transform[child.key]
+                : null),
+              opacity: spring(1, this.props.springConfig),
+              scale: spring(1, this.props.springConfig)
+            },
         key: child.key
       };
     });
@@ -121,6 +121,7 @@ class FlipMotion extends Component {
           nextKeys.indexOf(prevChild.key) === -1 &&
           nextChildren.length < prevChildren.length
         ) {
+          const scrollingElement = document.scrollingElement || document.body;
           const child = this.children[prevChild.key];
           const rect = child.getBoundingClientRect();
           const parentRect = getOffsetParentRect(child);
@@ -131,8 +132,9 @@ class FlipMotion extends Component {
               height: rect.height,
               width: rect.width,
               left: rect.left - parentRect.left,
-              top: rect.top - parentRect.top,
-              position: "absolute"
+              top: rect.top - parentRect.top + scrollingElement.scrollTop,
+              position: "absolute",
+              zIndex: -1
             }
           };
         }
@@ -258,10 +260,10 @@ class FlipMotion extends Component {
                       opacity: item.style.opacity,
                       transform: `translate(${item.style.x}px, ${
                         item.style.y
-                      }px) scale(${item.style.scale})`,
+                        }px) scale(${item.style.scale})`,
                       WebkitTransform: `translate(${item.style.x}px, ${
                         item.style.y
-                      }px) scale(${item.style.scale})`
+                        }px) scale(${item.style.scale})`
                     }
                   }
                   ref={c => (this.children[item.key] = c)}
