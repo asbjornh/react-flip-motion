@@ -37,32 +37,54 @@ import FlipMotion from "react-flip-motion";
 
 A component that performs transitions between children states.
 
-The only thing you need to do is passing children. These children **must** have
+The only thing you need to do is to pass children. These children **must** have
 a `key` prop.
 
-#### Props
+### Props
 
-|Prop|Type|Default|Description|
-|---|---|---|---|
-|`childComponent`|String / ReactClass|`div`|The element or component wrapping each child
-|`childStyle`|Object||Style of the element wrapping each child
-|`childClassName`|String||Classname for the element wrapping each child
-|`className`|String||Classname applied to container element
-|`component`|String / ReactClass|`div`|The container element or component
-|`springConfig`|Object||Spring configuration for react-motion ([docs](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig))
-|`style`|Object||Style of the container element
+**childComponent** : String / ReactClass = `div`
+<br/>The element or component wrapping each child
+
+---
+
+**childStyle** : Object
+<br/>Style of the element wrapping each child
+
+---
+
+**childClassName** : String
+<br/>Classname for the element wrapping each child
+
+---
+
+**className** : String
+<br/>Classname applied to container element
+
+---
+
+**component** : String / ReactClass = `div`
+<br/>The container element or component
+
+---
+
+**springConfig** : Object
+<br/>Spring configuration for react-motion ([docs](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig))
+
+---
+
+**style** : Object
+<br/>Style of the container element
+
+---
 
 #### Example
 
 Simple usage:
 
-```javascript
+```jsx
 <FlipMotion>
   {list.map((item) =>
-    <div
-      key={item.id}
-      style={styles.child}
-    >
+    <div key={item.id}>
       {item.text}
     </div>
   })}
@@ -71,15 +93,15 @@ Simple usage:
 
 With custom styles on wrappers:
 
-```javascript
+```jsx
 <FlipMotion style={{ display: "flex" }} childStyle={{ flexBasis: 400 }}>
   {children}
-</FlipMotion>;
+</FlipMotion>
 ```
 
 Elements and classes specified:
 
-```javascript
+```jsx
 <FlipMotion
   component="ul"
   className="container"
@@ -87,19 +109,27 @@ Elements and classes specified:
   childClassName="element"
 >
   {children}
-</FlipMotion>;
+</FlipMotion>
 ```
 
-## What is FLIP?
+# Changelog
+
+## 1.1.8
+
+- Fixed unmount animations being cancelled when FlipMotion received new props many times in a row in a short span of time.
+- [Issue #7](https://github.com/asbjornh/react-flip-motion/issues/7): Fixed unmounting elements not being animated when `nextProps.children` had more elements than `prevProps.children`.
+- [Issue #5](https://github.com/asbjornh/react-flip-motion/issues/5): Hopefully fixed issues with buggy transforms caused by positioned parent elements.
+
+# What is FLIP?
 
 **FLIP** is an animation technique from
 [Paul Lewis](https://twitter.com/aerotwist). It stands for **First**, **Last**,
 **Invert**, **Play**.
 
-* **First**: At the initial state, measure where elements are
-* **Last**: Move elements to where they belong at the end of the animation
-* **Invert**: Use CSS transforms to move the elements to their initial positions
-* **Play**: Play the animation
+- **First**: Before the animation, measure the position of all elements
+- **Last**: Let elements render in their new positions and measure
+- **Invert**: Use CSS transforms to move the elements to their initial positions
+- **Play**: Play the animation (animate the transform to 0)
 
 This technique presents the advantage to remove the need for complex
 calculations to guess where the element you animate is going to end up. You just
@@ -108,7 +138,7 @@ measure a diff.
 > You should read the great article explaining the technique on
 > [aerotwist](https://aerotwist.com/blog/flip-your-animations/)
 
-## Why using react-motion?
+## Why react-motion?
 
 react-motion provides a great way to configure animations: not with time, but
 with _physics_. This makes animations really smooth and natural.
