@@ -29,15 +29,16 @@ class FlipMotion extends Component {
     childComponent: "div"
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      shouldMeasure: false,
-      previousPosition: null,
-      transform: null
-    };
-    this.children = {};
-  }
+  state = {
+    shouldMeasure: false,
+    previousPosition: null,
+    transform: null
+  };
+
+  children = {};
+
+  // shouldMeasure needs to live both in state and as a instance property. The state version is used in render, and the instance property is needed to prevent doing stuff inside componentDidUpdate on consecutive updates
+  shouldMeasure = false;
 
   getStyles() {
     const { elementsThatWillUnmount, unmountingElements } = this.state;
@@ -140,6 +141,7 @@ class FlipMotion extends Component {
         100
       );
 
+      this.shouldMeasure = true;
       this.setState({
         elementsThatWillUnmount,
         unmountingElements: {},
@@ -157,7 +159,8 @@ class FlipMotion extends Component {
   }
 
   componentDidUpdate() {
-    if (this.state.shouldMeasure) {
+    if (this.shouldMeasure) {
+      this.shouldMeasure = false;
       raf(() => {
         this.setState(
           state => {
