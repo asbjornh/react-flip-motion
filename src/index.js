@@ -107,11 +107,8 @@ class FlipMotion extends Component {
       const parentRect = findDOMNode(this).getBoundingClientRect();
 
       Children.forEach(this.props.children, (prevChild, index) => {
-        // If key is missing in nextKeys and , element is about to unmount. Store dimensions to be able to position absolutely
-        if (
-          nextKeys.indexOf(prevChild.key) === -1 &&
-          nextChildren.length < prevChildren.length
-        ) {
+        // If key is missing in nextKeys element is about to unmount. Store dimensions to be able to position absolutely
+        if (nextKeys.indexOf(prevChild.key) === -1) {
           const child = this.children[prevChild.key];
           const rect = child.getBoundingClientRect();
 
