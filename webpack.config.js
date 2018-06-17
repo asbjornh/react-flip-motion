@@ -1,5 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = () => {
   return {
@@ -34,6 +35,18 @@ module.exports = () => {
           test: /\.jsx?$/,
           exclude: /node_modules/,
           use: ["babel-loader", "eslint-loader"]
+        },
+        {
+          test: /\.css/,
+          exclude: /node_modules/,
+          use: ExtractTextPlugin.extract([
+            {
+              loader: "css-loader",
+              options: {
+                importLoaders: 1
+              }
+            }
+          ])
         }
       ]
     },
@@ -41,6 +54,7 @@ module.exports = () => {
       extensions: [".js", ".jsx", ".scss"]
     },
     plugins: [
+      new ExtractTextPlugin("[name].[chunkhash].css"),
       new HtmlWebpackPlugin({
         template: "demo/index.html"
       })
