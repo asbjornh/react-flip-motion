@@ -1,20 +1,8 @@
 import React, { Component, Children } from "react";
+import { findDOMNode } from "react-dom";
 import PropTypes from "prop-types";
 import raf from "raf";
 import { TransitionMotion, spring } from "react-motion";
-
-function getOffsetParentRect(node) {
-  if (
-    node.offsetParent &&
-    getComputedStyle(node.offsetParent).position !== "static"
-  ) {
-    return node.offsetParent.getBoundingClientRect();
-  } else if (node.offsetParent) {
-    return getOffsetParentRect(node.offsetParent);
-  } else {
-    return { top: 0, left: 0 };
-  }
-}
 
 class FlipMotion extends Component {
   static propTypes = {
@@ -116,6 +104,7 @@ class FlipMotion extends Component {
     ) {
       const elementsThatWillUnmount = {};
       const nextKeys = Children.map(nextProps.children, child => child.key);
+      const parentRect = findDOMNode(this).getBoundingClientRect();
 
       Children.forEach(this.props.children, (prevChild, index) => {
         // If key is missing in nextKeys and , element is about to unmount. Store dimensions to be able to position absolutely
@@ -123,10 +112,8 @@ class FlipMotion extends Component {
           nextKeys.indexOf(prevChild.key) === -1 &&
           nextChildren.length < prevChildren.length
         ) {
-          const scrollingElement = document.scrollingElement || document.body;
           const child = this.children[prevChild.key];
           const rect = child.getBoundingClientRect();
-          const parentRect = getOffsetParentRect(child);
 
           elementsThatWillUnmount[prevChild.key] = {
             index,
@@ -134,7 +121,7 @@ class FlipMotion extends Component {
               height: rect.height,
               width: rect.width,
               left: rect.left - parentRect.left,
-              top: rect.top - parentRect.top + scrollingElement.scrollTop,
+              top: rect.top + -parentRect.top,
               position: "absolute",
               zIndex: -1
             }
@@ -240,7 +227,10 @@ class FlipMotion extends Component {
     return (
       <TransitionMotion styles={this.getStyles()} willEnter={this.willEnter}>
         {styles => (
-          <Component style={style} className={this.props.className}>
+          <Component
+            style={{ ...style, position: "relative" }}
+            className={this.props.className}
+          >
             {styles.map(item => {
               const willUnmount =
                 this.state.shouldMeasure &&
