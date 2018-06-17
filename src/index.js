@@ -54,22 +54,29 @@ class FlipMotion extends Component {
       return {
         data: child,
         style:
-          unmountingElements && unmountingElements[child.key]
+          elementsThatWillUnmount && elementsThatWillUnmount[child.key]
             ? {
-                x: spring(0, this.props.springConfig),
-                y: spring(0, this.props.springConfig),
-                opacity: spring(0, this.props.springConfig),
-                scale: spring(0.6, this.props.springConfig)
+                x: 0,
+                y: 0,
+                opacity: 1,
+                scale: 1
               }
-            : {
-                x: spring(0, this.props.springConfig),
-                y: spring(0, this.props.springConfig),
-                ...(this.state.transform && this.state.transform[child.key]
-                  ? this.state.transform[child.key]
-                  : null),
-                opacity: spring(1, this.props.springConfig),
-                scale: spring(1, this.props.springConfig)
-              },
+            : unmountingElements && unmountingElements[child.key]
+              ? {
+                  x: spring(0, this.props.springConfig),
+                  y: spring(0, this.props.springConfig),
+                  opacity: spring(0, this.props.springConfig),
+                  scale: spring(0.6, this.props.springConfig)
+                }
+              : {
+                  x: spring(0, this.props.springConfig),
+                  y: spring(0, this.props.springConfig),
+                  ...(this.state.transform && this.state.transform[child.key]
+                    ? this.state.transform[child.key]
+                    : null),
+                  opacity: spring(1, this.props.springConfig),
+                  scale: spring(1, this.props.springConfig)
+                },
         key: child.key
       };
     });
@@ -93,9 +100,9 @@ class FlipMotion extends Component {
     this.setState({ unmountingElements: prunedUnmountingElements });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const prevChildren = Children.toArray(this.props.children);
-    const nextChildren = Children.toArray(nextProps.children);
+  componentDidUpdate(prevProps) {
+    const prevChildren = Children.toArray(prevProps.children);
+    const nextChildren = Children.toArray(this.props.children);
     if (
       nextChildren.some(
         (item, index) =>
@@ -104,10 +111,10 @@ class FlipMotion extends Component {
       prevChildren.length !== nextChildren.length
     ) {
       const elementsThatWillUnmount = {};
-      const nextKeys = Children.map(nextProps.children, child => child.key);
+      const nextKeys = Children.map(this.props.children, child => child.key);
       const parentRect = findDOMNode(this).getBoundingClientRect();
 
-      Children.forEach(this.props.children, (prevChild, index) => {
+      Children.forEach(prevProps.children, (prevChild, index) => {
         // If key is missing in nextKeys element is about to unmount. Store dimensions to be able to position absolutely
         if (nextKeys.indexOf(prevChild.key) === -1) {
           const child = this.children[prevChild.key];
@@ -128,10 +135,10 @@ class FlipMotion extends Component {
       });
 
       // Insert unmounting elements into nextProps.children to keep them mounted so they can be animated out
-      const previousChildren = Object.assign([], nextProps.children);
+      const previousChildren = Object.assign([], this.props.children);
       Object.keys(elementsThatWillUnmount).forEach(key => {
         const index = elementsThatWillUnmount[key].index;
-        previousChildren.push(this.props.children[index]);
+        previousChildren.push(prevProps.children[index]);
       });
 
       // As TransitionMotion does not provide a callback for motion end, we need to manually remove the elements that have completed their out transition and are ready to be unmounted
@@ -141,80 +148,80 @@ class FlipMotion extends Component {
         100
       );
 
-      this.shouldMeasure = true;
-      this.setState({
-        elementsThatWillUnmount,
-        unmountingElements: {},
-        shouldMeasure: true,
-        previousChildren,
-        previousPosition: Object.keys(this.children).reduce((acc, key) => {
-          if (this.children[key]) {
-            acc[key] = this.children[key].getBoundingClientRect();
-          }
-          return acc;
-        }, {}),
-        transform: null
-      });
-    }
-  }
-
-  componentDidUpdate() {
-    if (this.shouldMeasure) {
-      this.shouldMeasure = false;
-      raf(() => {
-        this.setState(
-          state => {
-            return {
-              elementsThatWillUnmount: null,
-              unmountingElements: state.elementsThatWillUnmount,
-              shouldMeasure: false,
-              transform: Object.keys(this.children).reduce((acc, key) => {
-                if (!this.children[key]) {
-                  acc[key] = {
-                    x: 0,
-                    y: 0
-                  };
-                  return acc;
-                }
-                const nextRect = this.children[key].getBoundingClientRect();
-                if (state.previousPosition && state.previousPosition[key]) {
-                  acc[key] = {
-                    x: state.previousPosition[key].left - nextRect.left,
-                    y: state.previousPosition[key].top - nextRect.top
-                  };
-                }
-                return acc;
-              }, {}),
-              previousPosition: null
-            };
-          },
-          () => {
-            if (this.state.transform) {
-              this.setState(state => ({
-                transform: Object.keys(state.transform).reduce((acc, key) => {
-                  acc[key] = {
-                    x: spring(0, this.props.springConfig),
-                    y: spring(0, this.props.springConfig)
-                  };
-                  return acc;
-                }, {})
-              }));
-              this.children = {};
+      this.setState(
+        {
+          elementsThatWillUnmount,
+          unmountingElements: {},
+          shouldMeasure: true,
+          previousChildren,
+          previousPosition: Object.keys(this.children).reduce((acc, key) => {
+            if (this.children[key]) {
+              acc[key] = this.children[key].getBoundingClientRect();
             }
-          }
-        );
-      });
+            return acc;
+          }, {}),
+          transform: null
+        },
+        () => {
+          raf(() => {
+            this.setState(
+              state => {
+                return {
+                  elementsThatWillUnmount: null,
+                  unmountingElements: state.elementsThatWillUnmount,
+                  shouldMeasure: false,
+                  transform: Object.keys(this.children).reduce((acc, key) => {
+                    if (!this.children[key]) {
+                      acc[key] = {
+                        x: 0,
+                        y: 0
+                      };
+                      return acc;
+                    }
+                    const nextRect = this.children[key].getBoundingClientRect();
+                    if (state.previousPosition && state.previousPosition[key]) {
+                      acc[key] = {
+                        x: state.previousPosition[key].left - nextRect.left,
+                        y: state.previousPosition[key].top - nextRect.top
+                      };
+                    }
+                    return acc;
+                  }, {}),
+                  previousPosition: null
+                };
+              },
+              () => {
+                if (this.state.transform) {
+                  this.setState(state => ({
+                    transform: Object.keys(state.transform).reduce(
+                      (acc, key) => {
+                        acc[key] = {
+                          x: spring(0, this.props.springConfig),
+                          y: spring(0, this.props.springConfig)
+                        };
+                        return acc;
+                      },
+                      {}
+                    )
+                  }));
+                  this.children = {};
+                }
+              }
+            );
+          });
+        }
+      );
     }
   }
 
-  willEnter() {
+  willEnter = () => {
     return {
       x: 0,
       y: 0,
       scale: 0.8,
       opacity: 0
     };
-  }
+  };
 
   render() {
     const style = this.props.style;
