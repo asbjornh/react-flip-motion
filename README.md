@@ -114,6 +114,11 @@ Elements and classes specified:
 
 # Changelog
 
+## 1.2.0
+
+- Compatibility with **React 16.4**
+- Hopefully fixed unmounting animations for good this time
+
 ## 1.1.8
 
 - Fixed unmount animations being cancelled when FlipMotion received new props many times in a row in a short span of time.
