@@ -132,7 +132,7 @@ class FlipMotion extends Component {
               left: rect.left - parentRect.left,
               top: rect.top - parentRect.top,
               position: "absolute",
-              zIndex: -1
+              zIndex: 0
             }
           };
         }
@@ -231,6 +231,7 @@ class FlipMotion extends Component {
     const Component = this.props.component;
     const ChildComponent = this.props.childComponent;
     const unmountingElements = this.state.unmountingElements || {};
+    const hasUnmountingElements = Object.keys(unmountingElements).length;
 
     return (
       <TransitionMotion styles={this.getStyles()} willEnter={this.willEnter}>
@@ -242,9 +243,9 @@ class FlipMotion extends Component {
             {styles.map(item => {
               const willUnmount =
                 this.state.shouldMeasure && unmountingElements[item.key];
-              const isUnMounting = unmountingElements[item.key];
               const unMountingStyles =
-                isUnMounting && unmountingElements[item.key].styles;
+                unmountingElements[item.key] &&
+                unmountingElements[item.key].styles;
 
               return (
                 <ChildComponent
@@ -253,6 +254,12 @@ class FlipMotion extends Component {
                   style={
                     item.style && {
                       ...childStyle,
+                      ...(hasUnmountingElements
+                        ? {
+                            position: "relative",
+                            zIndex: 1
+                          }
+                        : {}),
                       ...unMountingStyles,
                       ...this.getTransform(item.style),
                       display: willUnmount ? "none" : childStyle.display,
