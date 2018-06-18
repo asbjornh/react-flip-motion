@@ -23,10 +23,10 @@ button {
 
 .wrapper {
   display: flex;
+  align-content: flex-start;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: stretch;
   margin-top: 40px;
 }
 

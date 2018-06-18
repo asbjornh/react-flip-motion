@@ -4,8 +4,11 @@ import PropTypes from "prop-types";
 import raf from "raf";
 import { TransitionMotion, spring } from "react-motion";
 
+import AnimatedWrapper from "./animated-wrapper";
+
 class FlipMotion extends Component {
   static propTypes = {
+    animateWrapper: PropTypes.bool,
     children: PropTypes.oneOfType([
       PropTypes.node,
       PropTypes.arrayOf(PropTypes.node)
@@ -26,6 +29,7 @@ class FlipMotion extends Component {
   };
 
   static defaultProps = {
+    animateWrapper: true,
     childStyle: {},
     component: "div",
     childComponent: "div",
@@ -34,12 +38,17 @@ class FlipMotion extends Component {
   };
 
   state = {
+    height: 0,
+    isAnimating: false,
     shouldMeasure: false,
+    previousChildren: null,
     previousPosition: null,
-    transform: null
+    transform: null,
+    unmountingElements: null
   };
 
   children = {};
+  newHeight = 0;
 
   getTransform = ({ scaleX, scaleY, x, y }) => {
     const transformString = `translate(${x}px, ${y}px) scaleX(${scaleX}) scaleY(${scaleY})`;
@@ -114,6 +123,7 @@ class FlipMotion extends Component {
       ) ||
       prevChildren.length !== nextChildren.length
     ) {
+      const containerHeight = findDOMNode(this).offsetHeight;
       const unmountingElements = {};
       const nextKeys = Children.map(this.props.children, child => child.key);
       const parentRect = findDOMNode(this).getBoundingClientRect();
@@ -171,29 +181,35 @@ class FlipMotion extends Component {
         () => {
           raf(() => {
             this.setState(
-              state => ({
-                shouldMeasure: false,
-                transform: Object.entries(this.children).reduce(
-                  (acc, [key, child]) => {
-                    const previousRect = state.previousPosition[key];
-                    const childRect = child && child.getBoundingClientRect();
-                    return Object.assign({}, acc, {
-                      [key]:
-                        childRect && previousRect
-                          ? {
-                              x: previousRect.left - childRect.left,
-                              y: previousRect.top - childRect.top
-                            }
-                          : { x: 0, y: 0 }
-                    });
-                  },
-                  {}
-                ),
-                previousPosition: null
-              }),
+              state => {
+                this.newHeight = findDOMNode(this).offsetHeight;
+                return {
+                  height: containerHeight,
+                  shouldMeasure: false,
+                  transform: Object.entries(this.children).reduce(
+                    (acc, [key, child]) => {
+                      const previousRect = state.previousPosition[key];
+                      const childRect = child && child.getBoundingClientRect();
+                      return Object.assign({}, acc, {
+                        [key]:
+                          childRect && previousRect
+                            ? {
+                                x: previousRect.left - childRect.left,
+                                y: previousRect.top - childRect.top
+                              }
+                            : { x: 0, y: 0 }
+                      });
+                    },
+                    {}
+                  ),
+                  previousPosition: null
+                };
+              },
               () => {
                 if (this.state.transform) {
                   this.setState(state => ({
+                    height: spring(this.newHeight, this.props.springConfig),
+                    isAnimating: true,
                     transform: Object.keys(state.transform).reduce(
                       (acc, key) =>
                         Object.assign({}, acc, {
@@ -225,56 +241,75 @@ class FlipMotion extends Component {
     };
   };
 
+  onHeightAnimationRest = () => {
+    this.setState({ isAnimating: false });
+  };
+
   render() {
-    const style = this.props.style;
-    const childStyle = this.props.childStyle;
+    const { style, childStyle } = this.props;
+    const { isAnimating, shouldMeasure } = this.state;
     const Component = this.props.component;
     const ChildComponent = this.props.childComponent;
     const unmountingElements = this.state.unmountingElements || {};
     const hasUnmountingElements = Object.keys(unmountingElements).length;
 
     return (
-      <TransitionMotion styles={this.getStyles()} willEnter={this.willEnter}>
-        {styles => (
-          <Component
-            style={{ ...style, position: "relative" }}
-            className={this.props.className}
+      <AnimatedWrapper
+        animateWrapper={this.props.animateWrapper}
+        height={this.state.height}
+        onRest={this.onHeightAnimationRest}
+      >
+        {({ height }) => (
+          <TransitionMotion
+            styles={this.getStyles()}
+            willEnter={this.willEnter}
           >
-            {styles.map(item => {
-              const willUnmount =
-                this.state.shouldMeasure && unmountingElements[item.key];
-              const unMountingStyles =
-                unmountingElements[item.key] &&
-                unmountingElements[item.key].styles;
+            {styles => (
+              <Component
+                style={{
+                  ...style,
+                  height: shouldMeasure || !isAnimating ? "auto" : height,
+                  position: "relative"
+                }}
+                className={this.props.className}
+              >
+                {styles.map(item => {
+                  const willUnmount =
+                    shouldMeasure && unmountingElements[item.key];
+                  const unMountingStyles =
+                    unmountingElements[item.key] &&
+                    unmountingElements[item.key].styles;
 
-              return (
-                <ChildComponent
-                  className={this.props.childClassName}
-                  key={item.key}
-                  style={
-                    item.style && {
-                      ...childStyle,
-                      ...(hasUnmountingElements
-                        ? {
-                            position: "relative",
-                            zIndex: 1
-                          }
-                        : {}),
-                      ...unMountingStyles,
-                      ...this.getTransform(item.style),
-                      display: willUnmount ? "none" : childStyle.display,
-                      opacity: item.style.opacity
-                    }
-                  }
-                  ref={c => (this.children[item.key] = c)}
-                >
-                  {item.data}
-                </ChildComponent>
-              );
-            })}
-          </Component>
+                  return (
+                    <ChildComponent
+                      className={this.props.childClassName}
+                      key={item.key}
+                      style={
+                        item.style && {
+                          ...childStyle,
+                          ...(hasUnmountingElements
+                            ? {
+                                position: "relative",
+                                zIndex: 1
+                              }
+                            : {}),
+                          ...unMountingStyles,
+                          ...this.getTransform(item.style),
+                          display: willUnmount ? "none" : childStyle.display,
+                          opacity: item.style.opacity
+                        }
+                      }
+                      ref={c => (this.children[item.key] = c)}
+                    >
+                      {item.data}
+                    </ChildComponent>
+                  );
+                })}
+              </Component>
+            )}
+          </TransitionMotion>
         )}
-      </TransitionMotion>
+      </AnimatedWrapper>
     );
   }
 }

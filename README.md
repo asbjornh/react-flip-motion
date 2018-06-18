@@ -124,6 +124,10 @@ Elements and classes specified:
 
 # Changelog
 
+## 1.2.1
+
+- Fixed unmounting animations not showing if container has a background color
+
 ## 1.2.0
 
 - Compatibility with **React 16.4**
