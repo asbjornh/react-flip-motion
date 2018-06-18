@@ -14,6 +14,7 @@ module.exports = () => {
     devServer: {
       stats: "minimal"
     },
+    mode: "development", // babel cli is used for building
     node: {
       fs: "empty"
     },
