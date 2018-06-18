@@ -15,6 +15,8 @@ class FlipMotion extends Component {
     childStyle: PropTypes.object,
     className: PropTypes.string,
     component: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+    scaleX: PropTypes.number,
+    scaleY: PropTypes.number,
     springConfig: PropTypes.shape({
       stiffness: PropTypes.number,
       damping: PropTypes.number,
@@ -26,7 +28,9 @@ class FlipMotion extends Component {
   static defaultProps = {
     childStyle: {},
     component: "div",
-    childComponent: "div"
+    childComponent: "div",
+    scaleX: 0.6,
+    scaleY: 0.6
   };
 
   state = {
@@ -37,9 +41,17 @@ class FlipMotion extends Component {
 
   children = {};
 
+  getTransform = ({ scaleX, scaleY, x, y }) => {
+    const transformString = `translate(${x}px, ${y}px) scaleX(${scaleX}) scaleY(${scaleY})`;
+    return {
+      transform: transformString,
+      WebkitTransform: transformString
+    };
+  };
+
   getStyles() {
     const { shouldMeasure, unmountingElements } = this.state;
-    const { springConfig } = this.props;
+    const { scaleX, scaleY, springConfig } = this.props;
 
     // If some elements are unmounting, use previousChildren to be able to add out transition to leaving elements
     const children =
@@ -56,7 +68,8 @@ class FlipMotion extends Component {
                 x: 0,
                 y: 0,
                 opacity: shouldMeasure ? 1 : spring(0, springConfig),
-                scale: shouldMeasure ? 1 : spring(0.6, springConfig)
+                scaleX: shouldMeasure ? 1 : spring(scaleX, springConfig),
+                scaleY: shouldMeasure ? 1 : spring(scaleY, springConfig)
               }
             : {
                 x: spring(0, springConfig),
@@ -65,7 +78,8 @@ class FlipMotion extends Component {
                   ? this.state.transform[child.key]
                   : null),
                 opacity: spring(1, springConfig),
-                scale: spring(1, springConfig)
+                scaleX: spring(1, springConfig),
+                scaleY: spring(1, springConfig)
               },
         key: child.key
       };
@@ -205,7 +219,8 @@ class FlipMotion extends Component {
     return {
       x: 0,
       y: 0,
-      scale: 0.8,
+      scaleX: this.props.scaleX,
+      scaleY: this.props.scaleY,
       opacity: 0
     };
   };
@@ -239,14 +254,9 @@ class FlipMotion extends Component {
                     item.style && {
                       ...childStyle,
                       ...unMountingStyles,
+                      ...this.getTransform(item.style),
                       display: willUnmount ? "none" : childStyle.display,
-                      opacity: item.style.opacity,
-                      transform: `translate(${item.style.x}px, ${
-                        item.style.y
-                      }px) scale(${item.style.scale})`,
-                      WebkitTransform: `translate(${item.style.x}px, ${
-                        item.style.y
-                      }px) scale(${item.style.scale})`
+                      opacity: item.style.opacity
                     }
                   }
                   ref={c => (this.children[item.key] = c)}

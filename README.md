@@ -42,6 +42,11 @@ a `key` prop.
 
 ### Props
 
+**childClassName** : String
+<br/>Classname for the element wrapping each child
+
+---
+
 **childComponent** : String / ReactClass = `div`
 <br/>The element or component wrapping each child
 
@@ -52,11 +57,6 @@ a `key` prop.
 
 ---
 
-**childClassName** : String
-<br/>Classname for the element wrapping each child
-
----
-
 **className** : String
 <br/>Classname applied to container element
 
@@ -64,6 +64,16 @@ a `key` prop.
 
 **component** : String / ReactClass = `div`
 <br/>The container element or component
+
+---
+
+**scaleX** : Number = `0.6`
+<br/>X-scale of children at the start of mounting animation and the end of unmounting animation
+
+---
+
+**scaleY** : Number = `0.6`
+<br/>Y-scale of children at the start of mounting animation and the end of unmounting animation
 
 ---
 
@@ -118,6 +128,7 @@ Elements and classes specified:
 
 - Compatibility with **React 16.4**
 - Hopefully fixed unmounting animations for good this time
+- Added support for customizing transition scaling with `scaleX` and `scaleY` props
 
 ## 1.1.8
 
