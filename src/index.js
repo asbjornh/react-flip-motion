@@ -135,8 +135,8 @@ class FlipMotion extends Component {
       // Combine nextProps.children with unmounting elements to keep them mounted so they can be animated out
       const previousChildren = [].concat(
         this.props.children,
-        Object.keys(elementsThatWillUnmount).map(
-          key => prevProps.children[elementsThatWillUnmount[key].index]
+        Object.values(elementsThatWillUnmount).map(
+          element => prevProps.children[element.index]
         )
       );
 
