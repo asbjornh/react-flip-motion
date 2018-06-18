@@ -124,7 +124,7 @@ class FlipMotion extends Component {
               height: rect.height,
               width: rect.width,
               left: rect.left - parentRect.left,
-              top: rect.top + -parentRect.top,
+              top: rect.top - parentRect.top,
               position: "absolute",
               zIndex: -1
             }
