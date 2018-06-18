@@ -37,11 +37,9 @@ class FlipMotion extends Component {
 
   children = {};
 
-  // shouldMeasure needs to live both in state and as a instance property. The state version is used in render, and the instance property is needed to prevent doing stuff inside componentDidUpdate on consecutive updates
-  shouldMeasure = false;
-
   getStyles() {
     const { elementsThatWillUnmount, unmountingElements } = this.state;
+    const { springConfig } = this.props;
 
     // If some elements are unmounting, use previousChildren to be able to add out transition to leaving elements
     const children =
@@ -63,19 +61,19 @@ class FlipMotion extends Component {
               }
             : unmountingElements && unmountingElements[child.key]
               ? {
-                  x: spring(0, this.props.springConfig),
-                  y: spring(0, this.props.springConfig),
-                  opacity: spring(0, this.props.springConfig),
-                  scale: spring(0.6, this.props.springConfig)
+                  x: spring(0, springConfig),
+                  y: spring(0, springConfig),
+                  opacity: spring(0, springConfig),
+                  scale: spring(0.6, springConfig)
                 }
               : {
-                  x: spring(0, this.props.springConfig),
-                  y: spring(0, this.props.springConfig),
+                  x: spring(0, springConfig),
+                  y: spring(0, springConfig),
                   ...(this.state.transform && this.state.transform[child.key]
                     ? this.state.transform[child.key]
                     : null),
-                  opacity: spring(1, this.props.springConfig),
-                  scale: spring(1, this.props.springConfig)
+                  opacity: spring(1, springConfig),
+                  scale: spring(1, springConfig)
                 },
         key: child.key
       };
@@ -134,12 +132,13 @@ class FlipMotion extends Component {
         }
       });
 
-      // Insert unmounting elements into nextProps.children to keep them mounted so they can be animated out
-      const previousChildren = Object.assign([], this.props.children);
-      Object.keys(elementsThatWillUnmount).forEach(key => {
-        const index = elementsThatWillUnmount[key].index;
-        previousChildren.push(prevProps.children[index]);
-      });
+      // Combine nextProps.children with unmounting elements to keep them mounted so they can be animated out
+      const previousChildren = [].concat(
+        this.props.children,
+        Object.keys(elementsThatWillUnmount).map(
+          key => prevProps.children[elementsThatWillUnmount[key].index]
+        )
+      );
 
       // As TransitionMotion does not provide a callback for motion end, we need to manually remove the elements that have completed their out transition and are ready to be unmounted
       clearInterval(this.pruneLoop);
@@ -154,12 +153,14 @@ class FlipMotion extends Component {
           unmountingElements: {},
           shouldMeasure: true,
           previousChildren,
-          previousPosition: Object.keys(this.children).reduce((acc, key) => {
-            if (this.children[key]) {
-              acc[key] = this.children[key].getBoundingClientRect();
-            }
-            return acc;
-          }, {}),
+          previousPosition: Object.entries(this.children).reduce(
+            (acc, [key, child]) =>
+              Object.assign(
+                acc,
+                child ? { [key]: child.getBoundingClientRect() } : {}
+              ),
+            {}
+          ),
           transform: null
         },
         () => {
@@ -170,23 +171,22 @@ class FlipMotion extends Component {
                   elementsThatWillUnmount: null,
                   unmountingElements: state.elementsThatWillUnmount,
                   shouldMeasure: false,
-                  transform: Object.keys(this.children).reduce((acc, key) => {
-                    if (!this.children[key]) {
-                      acc[key] = {
-                        x: 0,
-                        y: 0
-                      };
-                      return acc;
-                    }
-                    const nextRect = this.children[key].getBoundingClientRect();
-                    if (state.previousPosition && state.previousPosition[key]) {
-                      acc[key] = {
-                        x: state.previousPosition[key].left - nextRect.left,
-                        y: state.previousPosition[key].top - nextRect.top
-                      };
-                    }
-                    return acc;
-                  }, {}),
+                  transform: Object.entries(this.children).reduce(
+                    (acc, [key, child]) => {
+                      const previousRect = state.previousPosition[key];
+                      const childRect = child && child.getBoundingClientRect();
+                      return Object.assign({}, acc, {
+                        [key]:
+                          childRect && previousRect
+                            ? {
+                                x: previousRect.left - childRect.left,
+                                y: previousRect.top - childRect.top
+                              }
+                            : { x: 0, y: 0 }
+                      });
+                    },
+                    {}
+                  ),
                   previousPosition: null
                 };
               },
@@ -194,13 +194,13 @@ class FlipMotion extends Component {
                 if (this.state.transform) {
                   this.setState(state => ({
                     transform: Object.keys(state.transform).reduce(
-                      (acc, key) => {
-                        acc[key] = {
-                          x: spring(0, this.props.springConfig),
-                          y: spring(0, this.props.springConfig)
-                        };
-                        return acc;
-                      },
+                      (acc, key) =>
+                        Object.assign({}, acc, {
+                          [key]: {
+                            x: spring(0, this.props.springConfig),
+                            y: spring(0, this.props.springConfig)
+                          }
+                        }),
                       {}
                     )
                   }));
