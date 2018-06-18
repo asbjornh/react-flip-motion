@@ -38,13 +38,12 @@ class FlipMotion extends Component {
   children = {};
 
   getStyles() {
-    const { elementsThatWillUnmount, unmountingElements } = this.state;
+    const { shouldMeasure, unmountingElements } = this.state;
     const { springConfig } = this.props;
 
     // If some elements are unmounting, use previousChildren to be able to add out transition to leaving elements
     const children =
-      (unmountingElements && Object.keys(unmountingElements).length) ||
-      (elementsThatWillUnmount && Object.keys(elementsThatWillUnmount).length)
+      unmountingElements && Object.keys(unmountingElements).length
         ? this.state.previousChildren
         : this.props.children;
 
@@ -52,29 +51,22 @@ class FlipMotion extends Component {
       return {
         data: child,
         style:
-          elementsThatWillUnmount && elementsThatWillUnmount[child.key]
+          unmountingElements && unmountingElements[child.key]
             ? {
                 x: 0,
                 y: 0,
-                opacity: 1,
-                scale: 1
+                opacity: shouldMeasure ? 1 : spring(0, springConfig),
+                scale: shouldMeasure ? 1 : spring(0.6, springConfig)
               }
-            : unmountingElements && unmountingElements[child.key]
-              ? {
-                  x: spring(0, springConfig),
-                  y: spring(0, springConfig),
-                  opacity: spring(0, springConfig),
-                  scale: spring(0.6, springConfig)
-                }
-              : {
-                  x: spring(0, springConfig),
-                  y: spring(0, springConfig),
-                  ...(this.state.transform && this.state.transform[child.key]
-                    ? this.state.transform[child.key]
-                    : null),
-                  opacity: spring(1, springConfig),
-                  scale: spring(1, springConfig)
-                },
+            : {
+                x: spring(0, springConfig),
+                y: spring(0, springConfig),
+                ...(this.state.transform && this.state.transform[child.key]
+                  ? this.state.transform[child.key]
+                  : null),
+                opacity: spring(1, springConfig),
+                scale: spring(1, springConfig)
+              },
         key: child.key
       };
     });
@@ -108,7 +100,7 @@ class FlipMotion extends Component {
       ) ||
       prevChildren.length !== nextChildren.length
     ) {
-      const elementsThatWillUnmount = {};
+      const unmountingElements = {};
       const nextKeys = Children.map(this.props.children, child => child.key);
       const parentRect = findDOMNode(this).getBoundingClientRect();
 
@@ -118,7 +110,7 @@ class FlipMotion extends Component {
           const child = this.children[prevChild.key];
           const rect = child.getBoundingClientRect();
 
-          elementsThatWillUnmount[prevChild.key] = {
+          unmountingElements[prevChild.key] = {
             index,
             styles: {
               height: rect.height,
@@ -135,7 +127,7 @@ class FlipMotion extends Component {
       // Combine nextProps.children with unmounting elements to keep them mounted so they can be animated out
       const previousChildren = [].concat(
         this.props.children,
-        Object.values(elementsThatWillUnmount).map(
+        Object.values(unmountingElements).map(
           element => prevProps.children[element.index]
         )
       );
@@ -149,8 +141,7 @@ class FlipMotion extends Component {
 
       this.setState(
         {
-          elementsThatWillUnmount,
-          unmountingElements: {},
+          unmountingElements,
           shouldMeasure: true,
           previousChildren,
           previousPosition: Object.entries(this.children).reduce(
@@ -166,30 +157,26 @@ class FlipMotion extends Component {
         () => {
           raf(() => {
             this.setState(
-              state => {
-                return {
-                  elementsThatWillUnmount: null,
-                  unmountingElements: state.elementsThatWillUnmount,
-                  shouldMeasure: false,
-                  transform: Object.entries(this.children).reduce(
-                    (acc, [key, child]) => {
-                      const previousRect = state.previousPosition[key];
-                      const childRect = child && child.getBoundingClientRect();
-                      return Object.assign({}, acc, {
-                        [key]:
-                          childRect && previousRect
-                            ? {
-                                x: previousRect.left - childRect.left,
-                                y: previousRect.top - childRect.top
-                              }
-                            : { x: 0, y: 0 }
-                      });
-                    },
-                    {}
-                  ),
-                  previousPosition: null
-                };
-              },
+              state => ({
+                shouldMeasure: false,
+                transform: Object.entries(this.children).reduce(
+                  (acc, [key, child]) => {
+                    const previousRect = state.previousPosition[key];
+                    const childRect = child && child.getBoundingClientRect();
+                    return Object.assign({}, acc, {
+                      [key]:
+                        childRect && previousRect
+                          ? {
+                              x: previousRect.left - childRect.left,
+                              y: previousRect.top - childRect.top
+                            }
+                          : { x: 0, y: 0 }
+                    });
+                  },
+                  {}
+                ),
+                previousPosition: null
+              }),
               () => {
                 if (this.state.transform) {
                   this.setState(state => ({
@@ -228,7 +215,6 @@ class FlipMotion extends Component {
     const childStyle = this.props.childStyle;
     const Component = this.props.component;
     const ChildComponent = this.props.childComponent;
-    const elementsThatWillUnmount = this.state.elementsThatWillUnmount || {};
     const unmountingElements = this.state.unmountingElements || {};
 
     return (
@@ -240,9 +226,7 @@ class FlipMotion extends Component {
           >
             {styles.map(item => {
               const willUnmount =
-                this.state.shouldMeasure &&
-                (elementsThatWillUnmount[item.key] ||
-                  unmountingElements[item.key]);
+                this.state.shouldMeasure && unmountingElements[item.key];
               const isUnMounting = unmountingElements[item.key];
               const unMountingStyles =
                 isUnMounting && unmountingElements[item.key].styles;
