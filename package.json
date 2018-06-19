@@ -77,13 +77,16 @@
   "jest": {
     "rootDir": "",
     "modulePathIgnorePatterns": [
-      "<rootDir>/node_modules/"
+      "<rootDir>/node_modules/",
+      "<rootDir>/__tests__/utils.js"
     ],
     "transformIgnorePatterns": [
-      "<rootDir>/node_modules/"
+      "<rootDir>/node_modules/",
+      "<rootDir>/__tests__/utils.js"
     ],
     "unmockedModulePathPatterns": [
-      "<rootDir>/node_modules/"
+      "<rootDir>/node_modules/",
+      "<rootDir>/__tests__/utils.js"
     ]
   }
 }
