@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 
-import FlipMotion from "../src";
+import { FlipMotionHeight as FlipMotion } from "../src";
 
 require("./style.css");
 
