@@ -2,11 +2,9 @@
 
 [![npm version](https://img.shields.io/npm/v/react-flip-motion.svg?style=flat)](https://www.npmjs.com/package/react-flip-motion)
 
-> A simple component to naively perform transitions between children changes
+A simple component to naively perform transitions between children changes. Also optionally animates the height of their containing element ✌️.
 
-> This is a fork of
-> [react-motion-flip](https://github.com/bloodyowl/react-motion-flip), which
-> appears to be abandoned
+This is a fork of [react-motion-flip](https://github.com/bloodyowl/react-motion-flip), which appears to be abandoned.
 
 ![flipmotion-loop](https://user-images.githubusercontent.com/13281350/33279420-c25b0856-d39e-11e7-9406-0930aa204655.gif)
 
@@ -25,10 +23,11 @@ yarn add react-flip-motion
 ## Import
 
 ```javascript
-// in ES5/commonJS
-var FlipMotion = require("react-flip-motion").default;
-// in ES6
+// Import standard FlipMotion
 import FlipMotion from "react-flip-motion";
+
+// Import FlipMotion with animated container height
+import { FlipMotionHeight } from "react-flip-motion";
 ```
 
 ## API
@@ -40,7 +39,13 @@ A component that performs transitions between children states.
 The only thing you need to do is to pass children. These children **must** have
 a `key` prop.
 
+### FlipMotionHeight
+
+Does the same thing as `FlipMotion` but also animates container height. This component uses `Motion` in addition to `TransitionMotion` which means your bundle size will increase.
+
 ### Props
+
+> Props are identical for `FlipMotion` and `FlipMotionHeight`
 
 **childClassName** : String
 <br/>Classname for the element wrapping each child
@@ -48,7 +53,7 @@ a `key` prop.
 ---
 
 **childComponent** : String / ReactClass = `div`
-<br/>The element or component wrapping each child
+<br/>The element or component wrapping each child. If using a custom component, it **must** be a class component. Also make sure it accepts and renders the `style` prop.
 
 ---
 
@@ -63,7 +68,7 @@ a `key` prop.
 ---
 
 **component** : String / ReactClass = `div`
-<br/>The container element or component
+<br/>The container element or component. If using a custom component, make sure it accepts and renders the `style` prop.
 
 ---
 
@@ -123,6 +128,14 @@ Elements and classes specified:
 ```
 
 # Changelog
+
+## 1.3.0
+
+- Added new component `FlipMotionHeight` which also animates container height
+
+## 1.2.1
+
+- Fixed unmounting animations not showing if container has a background color
 
 ## 1.2.0
 
