@@ -1,6 +1,6 @@
 {
   "name": "react-flip-motion",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "A simple component to perform FLIP animations using react-motion",
   "main": "lib/index.js",
   "files": [
@@ -31,9 +31,13 @@
     {
       "name": "Asbjorn Hegdahl",
       "url": "https://github.com/asbjornh/"
+    },
+    {
+      "name": "bloodyowl",
+      "url": "https://github.com/bloodyowl"
     }
   ],
-  "author": "bloodyowl <mlbli@me.com>",
+  "author": "Asbjorn Hegdahl",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/asbjornh/react-flip-motion/issues"
@@ -47,7 +51,7 @@
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-class-properties": "^6.9.0",
     "babel-plugin-transform-object-rest-spread": "^6.8.0",
-    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.5.0",
     "css-loader": "^0.28.11",
     "eslint": "^4.12.0",

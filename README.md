@@ -41,7 +41,7 @@ a `key` prop.
 
 ### FlipMotionHeight
 
-Does the same thing as `FlipMotion` but also animates container height. This component uses `Motion` in addition to `TransitionMotion` which means your bundle size will increase.
+Does the same thing as `FlipMotion` but also animates container height.
 
 ### Props
 
