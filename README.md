@@ -20,6 +20,12 @@ or
 yarn add react-flip-motion
 ```
 
+## Good to know
+
+Sadly, `FlipMotion` does not work that well when it receives props many times in a row in fast succession. Due to the complexity of `FlipMotion`, this is easier to handle outside of `FlipMotion` itself.
+
+If your app renders very frequently and `FlipMotion` animations are janky, you can try wrapping `FlipMotion` in a component that reduces updates of children, like [this component](https://github.com/Creuna-Oslo/react-components/blob/master/components/debounce-render).
+
 ## Import
 
 ```javascript
@@ -128,6 +134,20 @@ Elements and classes specified:
 ```
 
 # Changelog
+
+# 1.3.3
+
+- Fixed unmounting elements without a measurement being positioned in the top left of the screen. They are now positioned in the top left corner of the containing element instead.
+- Added info in readme about too frequent updates to `FlipMotion`
+
+## 1.3.2
+
+- Fixed FlipMotion trying to set state after it's unmounted
+- Fixed crach when FlipMotion receives new children many times in a row
+
+## 1.3.1
+
+- Readme update
 
 ## 1.3.0
 

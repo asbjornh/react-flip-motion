@@ -114,120 +114,129 @@ export default function(Wrapper) {
     componentDidUpdate(prevProps) {
       const prevChildren = Children.toArray(prevProps.children);
       const nextChildren = Children.toArray(this.props.children);
-      if (
-        nextChildren.some(
-          (item, index) =>
-            !prevChildren[index] || item.key !== prevChildren[index].key
-        ) ||
-        prevChildren.length !== nextChildren.length
-      ) {
-        const containerHeight = findDOMNode(this).offsetHeight;
-        const unmountingElements = {};
-        const nextKeys = Children.map(this.props.children, child => child.key);
-        const parentRect = findDOMNode(this).getBoundingClientRect();
-
-        Children.forEach(prevProps.children, (prevChild, index) => {
-          // If key is missing in nextKeys element is about to unmount. Store dimensions to be able to position absolutely
-          if (nextKeys.indexOf(prevChild.key) === -1) {
-            const child = this.children[prevChild.key];
-            const rect = child.getBoundingClientRect();
-
-            unmountingElements[prevChild.key] = {
-              index,
-              styles: {
-                height: rect.height,
-                width: rect.width,
-                left: rect.left - parentRect.left,
-                top: rect.top - parentRect.top,
-                position: "absolute",
-                zIndex: 0
-              }
-            };
-          }
-        });
-
-        // Combine nextProps.children with unmounting elements to keep them mounted so they can be animated out
-        const previousChildren = [].concat(
-          this.props.children,
-          Object.values(unmountingElements).map(
-            element => prevProps.children[element.index]
-          )
+      const hasSameChildren =
+        prevChildren.length === nextChildren.length &&
+        nextChildren.every(
+          (item, index) => item.key === prevChildren[index].key
         );
 
-        // As TransitionMotion does not provide a callback for motion end, we need to manually remove the elements that have completed their out transition and are ready to be unmounted
-        clearInterval(this.pruneLoop);
-        this.pruneLoop = setInterval(
-          this.pruneUnmountingElements.bind(this),
-          100
-        );
-
-        this.setState(
-          {
-            unmountingElements,
-            shouldMeasure: true,
-            previousChildren,
-            previousPosition: Object.entries(this.children).reduce(
-              (acc, [key, child]) =>
-                Object.assign(
-                  acc,
-                  child ? { [key]: child.getBoundingClientRect() } : {}
-                ),
-              {}
-            ),
-            transform: null
-          },
-          () => {
-            raf(() => {
-              this.setState(
-                state => {
-                  this.newHeight = findDOMNode(this).offsetHeight;
-                  return {
-                    height: containerHeight,
-                    shouldMeasure: false,
-                    transform: Object.entries(this.children).reduce(
-                      (acc, [key, child]) => {
-                        const previousRect = state.previousPosition[key];
-                        const childRect =
-                          child && child.getBoundingClientRect();
-                        return Object.assign({}, acc, {
-                          [key]:
-                            childRect && previousRect
-                              ? {
-                                  x: previousRect.left - childRect.left,
-                                  y: previousRect.top - childRect.top
-                                }
-                              : { x: 0, y: 0 }
-                        });
-                      },
-                      {}
-                    ),
-                    previousPosition: null
-                  };
-                },
-                () => {
-                  if (this.state.transform) {
-                    this.setState(state => ({
-                      height: spring(this.newHeight, this.props.springConfig),
-                      isAnimatingHeight: true,
-                      transform: Object.keys(state.transform).reduce(
-                        (acc, key) =>
-                          Object.assign({}, acc, {
-                            [key]: {
-                              x: spring(0, this.props.springConfig),
-                              y: spring(0, this.props.springConfig)
-                            }
-                          }),
-                        {}
-                      )
-                    }));
-                    this.children = {};
-                  }
-                }
-              );
-            });
-          }
-        );
+      if (hasSameChildren) {
+        return;
       }
+
+      const containerHeight = findDOMNode(this).offsetHeight;
+      const unmountingElements = {};
+      const nextKeys = Children.map(this.props.children, child => child.key);
+      const parentRect = findDOMNode(this).getBoundingClientRect();
+
+      Children.forEach(prevProps.children, (prevChild, index) => {
+        // If key is missing in nextKeys element is about to unmount. Store dimensions to be able to position absolutely
+        if (nextKeys.indexOf(prevChild.key) === -1) {
+          const child = this.children[prevChild.key];
+          const rect = child
+            ? child.getBoundingClientRect()
+            : { top: parentRect.top, left: parentRect.left };
+
+          unmountingElements[prevChild.key] = {
+            index,
+            styles: {
+              height: rect.height,
+              width: rect.width,
+              left: rect.left - parentRect.left,
+              top: rect.top - parentRect.top,
+              position: "absolute",
+              zIndex: 0
+            }
+          };
+        }
+      });
+
+      // Combine nextProps.children with unmounting elements to keep them mounted so they can be animated out
+      const previousChildren = [].concat(
+        this.props.children,
+        Object.values(unmountingElements).map(
+          element => prevProps.children[element.index]
+        )
+      );
+
+      // As TransitionMotion does not provide a callback for motion end, we need to manually remove the elements that have completed their out transition and are ready to be unmounted
+      clearInterval(this.pruneLoop);
+      this.pruneLoop = setInterval(
+        this.pruneUnmountingElements.bind(this),
+        100
+      );
+
+      this.setState(
+        {
+          unmountingElements,
+          shouldMeasure: true,
+          previousChildren,
+          previousPosition: Object.entries(this.children).reduce(
+            (acc, [key, child]) =>
+              Object.assign(
+                acc,
+                child ? { [key]: child.getBoundingClientRect() } : {}
+              ),
+            {}
+          ),
+          transform: null
+        },
+        () => {
+          raf.cancel(this.raf);
+          this.raf = raf(() => {
+            this.setState(
+              state => {
+                this.newHeight = findDOMNode(this).offsetHeight;
+                return {
+                  height: containerHeight,
+                  shouldMeasure: false,
+                  transform: Object.entries(this.children).reduce(
+                    (acc, [key, child]) => {
+                      const previousRect = state.previousPosition[key];
+                      const childRect = child && child.getBoundingClientRect();
+                      return Object.assign({}, acc, {
+                        [key]:
+                          childRect && previousRect
+                            ? {
+                                x: previousRect.left - childRect.left,
+                                y: previousRect.top - childRect.top
+                              }
+                            : { x: 0, y: 0 }
+                      });
+                    },
+                    {}
+                  ),
+                  previousPosition: null
+                };
+              },
+              () => {
+                if (this.state.transform) {
+                  this.setState(state => ({
+                    height: spring(this.newHeight, this.props.springConfig),
+                    isAnimatingHeight: true,
+                    transform: Object.keys(state.transform).reduce(
+                      (acc, key) =>
+                        Object.assign({}, acc, {
+                          [key]: {
+                            x: spring(0, this.props.springConfig),
+                            y: spring(0, this.props.springConfig)
+                          }
+                        }),
+                      {}
+                    )
+                  }));
+                  this.children = {};
+                }
+              }
+            );
+          });
+        }
+      );
+    }
+
+    componentWillUnmount() {
+      raf.cancel(this.raf);
+      clearInterval(this.pruneLoop);
     }
 
     willEnter = () => {

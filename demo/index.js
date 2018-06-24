@@ -34,6 +34,16 @@ class App extends Component {
     ]
   };
 
+  replaceAllMultipleTimes = () => {
+    this.setState({ list: [...Array(10)].map(() => getItem()) }, () => {
+      this.setState({ list: [...Array(10)].map(() => getItem()) }, () => {
+        this.setState({ list: [...Array(10)].map(() => getItem()) }, () => {
+          this.setState({ list: [...Array(10)].map(() => getItem()) });
+        });
+      });
+    });
+  };
+
   shuffle = () => {
     this.setState(({ list }) => ({
       list: list.concat().sort(() => (Math.random() > 0.5 ? -1 : 1))
@@ -95,6 +105,9 @@ class App extends Component {
         <button onClick={this.deleteItemRandomly}>Delete an item</button>
         <button onClick={this.deleteMultipleItemsRandomly}>
           Delete multiple items
+        </button>
+        <button onClick={this.replaceAllMultipleTimes}>
+          Replace all items multiple times
         </button>
         <button onClick={this.addAndRemove}>Delete and add</button>
         <button onClick={this.replaceItemRandomly}>Replace an item</button>
