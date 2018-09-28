@@ -1,6 +1,6 @@
 {
   "name": "react-flip-motion",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "A simple component to perform FLIP animations using react-motion",
   "main": "lib/index.js",
   "files": [
