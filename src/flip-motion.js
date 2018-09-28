@@ -50,7 +50,9 @@ export default function(Wrapper) {
 
     getTransform = ({ scaleX, scaleY, x, y }) => {
       if (x === 0 && y === 0 && scaleX === 1 && scaleY === 1) return {};
+
       const transformString = `translate(${x}px, ${y}px) scaleX(${scaleX}) scaleY(${scaleY})`;
+
       return {
         transform: transformString,
         WebkitTransform: transformString
